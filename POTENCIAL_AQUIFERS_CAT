@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aqüífers de Catalunya — Recàrrega Anual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface2: #F0EFE9;
+  --border: rgba(0,0,0,0.08);
+  --text: #1A1916;
+  --text2: #6B6A64;
+  --text3: #9B9A94;
+  --water: #0F6E56;
+  --water-light: #E1F5EE;
+  --water-mid: #1D9E75;
+  --high: #2D6A0A;
+  --high-bg: #EAF3DE;
+  --mid: #7A4A00;
+  --mid-bg: #FFF3D6;
+  --low: #8B1F1F;
+  --low-bg: #FDEAEA;
+  --accent: #0F6E56;
+  --r: 12px;
+  --r-sm: 6px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* HEADER */
+.site-header {
+  background: var(--water);
+  color: white;
+  padding: 2rem 2.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.site-header::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: 80px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+}
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.header-logo { display: flex; align-items: center; gap: 10px; opacity: 0.7; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.header-logo svg { width: 20px; height: 20px; }
+.header-title { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 4vw, 34px); font-weight: 400; line-height: 1.1; margin: 1rem 0 0.4rem; }
+.header-sub { font-size: 13px; opacity: 0.75; max-width: 520px; }
+.header-tags { display: flex; gap: 8px; margin-top: 1.2rem; flex-wrap: wrap; }
+.tag { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+
+/* METRICS */
+.metrics-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.metric {
+  background: var(--surface);
+  padding: 1.2rem 1.5rem;
+  transition: background 0.15s;
+}
+.metric:hover { background: var(--surface2); }
+.metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.metric-value { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--text); line-height: 1; }
+.metric-unit { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.metric-delta { font-size: 11px; margin-top: 4px; }
+.metric-delta.up { color: var(--high); }
+
+/* LAYOUT */
+.main { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 280px); }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 1.25rem;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.sidebar-section { margin-bottom: 1.5rem; }
+.sidebar-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 8px; font-weight: 500; }
+
+.filter-group { margin-bottom: 1rem; }
+.filter-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; }
+select, input[type=range] { width: 100%; }
+select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236B6A64' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+select:focus { outline: 2px solid var(--water-mid); outline-offset: 1px; }
+input[type=range] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--water);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.range-val { font-size: 12px; color: var(--text2); margin-top: 4px; text-align: right; }
+
+/* LLEGENDA */
+.legend { margin-top: 0.5rem; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ESTADÍSTICA RAPIDA */
+.stat-mini { background: var(--surface2); border-radius: var(--r-sm); padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.stat-mini-label { font-size: 11px; color: var(--text2); }
+.stat-mini-val { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* CONTENT */
+.content { padding: 1.5rem; overflow: hidden; }
+
+.charts-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.25rem;
+}
+.card-title { font-size: 12px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+
+/* DETAIL PANEL */
+.detail-panel {
+  background: var(--surface);
+  border: 2px solid var(--water-mid);
+  border-radius: var(--r);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: none;
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.detail-panel.visible { display: block; }
+.detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.detail-nom { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); max-width: 80%; line-height: 1.2; }
+.detail-close { background: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: var(--r-sm); cursor: pointer; font-size: 12px; color: var(--text2); font-family: 'DM Sans', sans-serif; }
+.detail-close:hover { background: var(--surface2); }
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.detail-item { background: var(--bg); border-radius: var(--r-sm); padding: 10px 12px; }
+.detail-item-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 3px; }
+.detail-item-val { font-size: 16px; font-weight: 500; color: var(--text); }
+.detail-item-val.high { color: var(--high); }
+.detail-item-val.mid { color: var(--mid); }
+.detail-item-val.low { color: var(--low); }
+.detail-rang { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+.table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.table-count { font-size: 12px; color: var(--text3); }
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; font-size: 11px; font-weight: 500;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 8px 10px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th.r { text-align: right; }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+tbody tr:hover { background: var(--water-light); }
+tbody tr.selected { background: var(--water-light); }
+tbody td { padding: 8px 10px; font-size: 12px; color: var(--text); }
+tbody td.r { text-align: right; }
+tbody td.muted { color: var(--text3); }
+
+.pill {
+  display: inline-block; font-size: 10px; padding: 2px 8px;
+  border-radius: 10px; font-weight: 500; white-space: nowrap;
+}
+.pill.alt { background: var(--high-bg); color: var(--high); }
+.pill.mig { background: var(--mid-bg); color: var(--mid); }
+.pill.baix { background: var(--low-bg); color: var(--low); }
+
+.semaforo { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; flex-shrink: 0; }
+
+.bar-mini { display: inline-block; height: 5px; border-radius: 2px; vertical-align: middle; margin-right: 4px; opacity: 0.4; }
+
+/* DONUT LLEGENDA */
+.donut-legend { margin-top: 8px; }
+.donut-leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.donut-leg-item .val { margin-left: auto; font-weight: 500; color: var(--text); font-size: 12px; }
+
+/* FOOTER */
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem;
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .metrics-bar { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .metrics-bar { grid-template-columns: 1fr 1fr; }
+  .site-header { padding: 1.2rem; }
+}
+
+.btn-ask {
+  background: var(--water);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-ask:hover { background: var(--water-dark, #054035); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      Observatori Intercol·legial de l'Aigua
+    </div>
+  </div>
+  <h1 class="header-title">Recàrrega anual als aqüífers<br><em>de Catalunya</em></h1>
+  <p class="header-sub">Estimació del volum renovable anual als aqüífers · Punt 2 de l'estudi d'aigües subterrànies</p>
+  <div class="header-tags">
+    <span class="tag">159 aqüífers</span>
+    <span class="tag">ICGC UH v1r0 · 2022</span>
+    <span class="tag">SMC Atlas Climàtic 1991–2020</span>
+    <span class="tag">R = Àrea × Precipitació × Cr</span>
+  </div>
+</header>
+
+<div class="metrics-bar" id="metrics-bar">
+  <div class="metric">
+    <div class="metric-label">Recàrrega central</div>
+    <div class="metric-value" id="m-rec">1.880</div>
+    <div class="metric-unit">hm³/any</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Àrea total</div>
+    <div class="metric-value" id="m-area">18.086</div>
+    <div class="metric-unit">km²</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Aqüífers seleccionats</div>
+    <div class="metric-value" id="m-n">54</div>
+    <div class="metric-unit">de 54 mostrats</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Cabal equivalent</div>
+    <div class="metric-value" id="m-cabal">59,6</div>
+    <div class="metric-unit">m³/s continu</div>
+  </div>
+</div>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Filtres</div>
+
+      <div class="filter-group">
+        <label class="filter-label">Tipus de porositat</label>
+        <select id="fil-poros">
+          <option value="tots">Tots els tipus</option>
+          <option value="Intergranular">Intergranular</option>
+          <option value="Doble: intergranular+fissuració">Doble: intergranular + fissuració</option>
+          <option value="Doble: fissuració+karstificació">Doble: fissuració + karstificació</option>
+          <option value="Fissuració">Fissuració</option>
+          <option value="Karstificació">Karstificació</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Zona geogràfica</label>
+        <select id="fil-zona">
+          <option value="tots">Totes les zones</option>
+          <option value="Costa nord">Costa nord (Empordà, Selva)</option>
+          <option value="Costa central">Costa central (Maresme, Vallès)</option>
+          <option value="Costa sud">Costa sud (Penedès, Tarragona)</option>
+          <option value="Interior">Interior (Bages, Anoia, Conca)</option>
+          <option value="Pirineus">Pirineus i Prepirineus</option>
+          <option value="Ponent">Ponent (Lleida, Segrià)</option>
+          <option value="Ebre">Terres de l'Ebre</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Recàrrega mínima</label>
+        <input type="range" id="fil-min" min="0" max="100" value="0" step="5">
+        <div class="range-val" id="fil-min-val">≥ 0 hm³/any</div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Ordenar per</label>
+        <select id="fil-ordre">
+          <option value="rec">Recàrrega ↓</option>
+          <option value="area">Àrea ↓</option>
+          <option value="precip">Precipitació ↓</option>
+          <option value="nom">Nom A→Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Llegenda</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#2D6A0A"></div>Alt (≥ 50 hm³/any)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#BA7517"></div>Mig (20–50 hm³/any)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8B1F1F"></div>Baix (< 20 hm³/any)</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Resum filtrat</div>
+      <div class="stat-mini"><span class="stat-mini-label">Recàrrega mín.</span><span class="stat-mini-val" id="s-min">—</span></div>
+      <div class="stat-mini"><span class="stat-mini-label">Recàrrega màx.</span><span class="stat-mini-val" id="s-max">—</span></div>
+      <div class="stat-mini"><span class="stat-mini-label">Precip. mitjana</span><span class="stat-mini-val" id="s-precip">—</span></div>
+      <div class="stat-mini"><span class="stat-mini-label">Àrea mitjana</span><span class="stat-mini-val" id="s-area">—</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Metodologia</div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.6;">
+        <strong style="color:var(--text2)">Fórmula:</strong><br>
+        R = Àrea (km²) × Precip. (mm) × Cr ÷ 1.000<br><br>
+        <strong style="color:var(--text2)">Cr per tipus:</strong><br>
+        Intergranular: 12–32%<br>
+        Doble Int+Fiss: 8–22%<br>
+        Doble Fiss+Karst: 6–20%<br>
+        Fissuració: 2–9%<br>
+        Karstificació: 8–26%<br><br>
+        <strong style="color:var(--text2)">Fonts:</strong><br>
+        Custodio & Llamas (1983)<br>
+        IGME (2004) · ACA (2023)<br>
+        SMC Atlas Climàtic 1991–2020
+      </p>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">Top 15 aqüífers per recàrrega anual</div>
+        <div style="position:relative;height:300px;">
+          <canvas id="chart-bar" role="img" aria-label="Gràfic de barres horitzontals amb els 15 aqüífers amb major recàrrega anual">Dades de recàrrega per aqüífer.</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Per tipus de porositat</div>
+        <div style="position:relative;height:180px;">
+          <canvas id="chart-donut" role="img" aria-label="Gràfic de donut per tipus de porositat">Distribució per porositat.</canvas>
+        </div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+
+    <div class="detail-panel" id="detail">
+      <div class="detail-header">
+        <div class="detail-nom" id="detail-nom"></div>
+        <button class="detail-close" onclick="document.getElementById('detail').classList.remove('visible')">Tancar ✕</button>
+      </div>
+      <div class="detail-grid" id="detail-grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="table-header-row">
+        <div class="card-title" style="margin-bottom:0">Llistat d'aqüífers</div>
+        <span class="table-count" id="table-count"></span>
+      </div>
+      <div style="margin-bottom:10px"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Aqüífer</th>
+              <th>Porositat</th>
+              <th>Zona</th>
+              <th class="r">Àrea km²</th>
+              <th class="r">Precip. mm</th>
+              <th class="r">Cr</th>
+              <th class="r">Rec. mín</th>
+              <th class="r">Rec. mig</th>
+              <th class="r">Rec. màx</th>
+              <th>Nivell</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>Observatori Intercol·legial de l'Aigua · Catalunya · 2024</span>
+  <span>Dades: ICGC Unitats Hidrogeològiques v1r0 (2022) · SMC Atlas Climàtic (1991–2020) · ACA Pla de gestió 2022–2027</span>
+  <span>Metodologia: Custodio & Llamas (1983) · IGME (2004)</span>
+</footer>
+
+<script>
+const POROS = {
+  'Intergranular': {cr:[0.12,0.22,0.32], short:'Intergranular', col:'#1D9E75'},
+  'Doble: intergranular+fissuració': {cr:[0.08,0.15,0.22], short:'Doble Int+Fiss', col:'#185FA5'},
+  'Doble: fissuració+karstificació': {cr:[0.06,0.13,0.20], short:'Doble Fiss+Karst', col:'#BA7517'},
+  'Fissuració': {cr:[0.02,0.05,0.09], short:'Fissuració', col:'#7F77DD'},
+  'Karstificació': {cr:[0.08,0.16,0.26], short:'Karstificació', col:'#D4537E'},
+};
+
+const ZONES = {
+  'Costa nord': ['101A10','102A10','103A10','104A10','108A10','109A10','110A10','111A10','112A10','113A10','101C21','104C21','103C21'],
+  'Costa central': ['201A21','204A21','205A21','206A21','207A21','208A21','209A21','210A21','211A21','214A21','215A21','201SA1','525SA1','526SA1','527SA1'],
+  'Costa sud': ['202A21','203A21','301A21','302A21','303A21','304A21','305A21','301C21','302C21','303C21','303C21b','524SA1'],
+  'Interior': ['212A21','213A21','501A21','502A21','202B31','203B31','501C21','502C21','503C21','504C21','501SA1','502SA1','503SA1','504SA1','510SA1','511SA1','512SA1','513SA1','522SA1','523SA1'],
+  'Pirineus': ['404B31','405B31','406B31','505C21','506C21','507C21','508C21','509C21','510C21','511C21','503D10','504D10','505D10','506D10','507D10','505SA1','506SA1','507SA1','508SA1','509SA1','518SA1','519SA1','520SA1'],
+  'Ponent': ['410A21','411A21','416A21','417A21','403A21','404A21','405A21','406A21','407A21','408A21','409A21','414A21','415A21','401SA1','521SA1'],
+  'Ebre': ['401A21','402A21','401B31','402B31','403B31','401C21','402C21','403C21','514SA1','515SA1','516SA1','517SA1'],
+};
+
+function getZona(id) {
+  for (const [z,ids] of Object.entries(ZONES)) if (ids.includes(id)) return z;
+  return 'Altres';
+}
+
+const RAW = [
+  ['101A10',"Aqüífer detrític neogen de l'Empordà",'Intergranular',733.9,700],
+  ['201A21',"Aqüífer detrític miocè del Vallès",'Intergranular',612.3,600],
+  ['410A21',"Aqüífer detrític miocè de la plana de Lleida",'Intergranular',487.3,380],
+  ['202A21',"Aqüífer detrítics mioquaternari del Penedès",'Intergranular',508.0,550],
+  ['403A21',"Aqüífer al·luvial del Segre",'Intergranular',198.4,500],
+  ['203A21',"Aqüífer detrític plioquaternari plana Garrotxa",'Intergranular',415.1,380],
+  ['301A21',"Aqüífer detrític plioquaternari camp Tarragona",'Intergranular',395.5,430],
+  ['401A21',"Aqüífer fluviodeltaic del delta de l'Ebre",'Intergranular',330.1,500],
+  ['402A21',"Aqüífer al·luvial del pla d'Urgell",'Intergranular',317.1,500],
+  ['411A21',"Aqüífer detrític plioquaternari de les Garrigues",'Intergranular',234.6,380],
+  ['110A10',"Aqüífer detrític quaternari de la Selva",'Intergranular',234.5,750],
+  ['416A21',"Aqüífer detrític miocè del Segrià",'Intergranular',312.4,380],
+  ['417A21',"Aqüífer detrític quaternari de l'Urgell",'Intergranular',178.3,500],
+  ['207A21',"Aqüífer detrític quaternari del Baix Llobregat",'Intergranular',142.8,580],
+  ['204A21',"Aqüífer detrític quaternari del Maresme",'Intergranular',285.1,600],
+  ['113A10',"Aqüífer detrític quaternari del Baix Empordà",'Intergranular',198.7,700],
+  ['112A10',"Aqüífer detrític neogen del Gironès",'Intergranular',156.3,700],
+  ['212A21',"Aqüífer detrític quaternari del Bages",'Intergranular',187.3,550],
+  ['309A21',"Aqüífer detrític miocè del Baix Camp",'Intergranular',145.6,500],
+  ['215A21',"Aqüífer detrític quaternari del Baix Penedès",'Intergranular',123.5,500],
+  ['213A21',"Aqüífer detrític quaternari de la Conca Barberà",'Intergranular',143.2,500],
+  ['108A10',"Aqüífer al·luvial de la Tordera",'Intergranular',67.8,650],
+  ['206A21',"Aqüífer al·luvial del Llobregat",'Intergranular',115.6,580],
+  ['404A21',"Aqüífer al·luvial de la Noguera Pallaresa",'Intergranular',87.6,900],
+  ['405A21',"Aqüífer al·luvial de la Noguera Ribagorçana",'Intergranular',65.3,1000],
+  ['402B31',"Aqüífer dels conglomerats de la Segarra",'Doble: intergranular+fissuració',267.8,550],
+  ['403B31',"Aqüífer dels gresos oligocens de l'Ebre",'Doble: intergranular+fissuració',198.4,500],
+  ['202B31',"Aqüífer dels conglomerats de Montserrat",'Doble: intergranular+fissuració',143.2,550],
+  ['101B31',"Aqüífer dels gresos paleozoics Alt Empordà",'Doble: intergranular+fissuració',187.4,700],
+  ['404B31',"Aqüífer dels gresos eocens del Pallars",'Doble: intergranular+fissuració',156.2,950],
+  ['201SA1',"Sistema aqüífer Vallès-Penedès",'Doble: intergranular+fissuració',387.4,580],
+  ['501SA1',"Sistema aqüífer del Llobregat mig",'Doble: intergranular+fissuració',178.4,600],
+  ['505C21',"Aqüífer calcàries del Pallars Jussà",'Doble: fissuració+karstificació',187.3,950],
+  ['509C21',"Aqüífer calcàries del Cadí",'Doble: fissuració+karstificació',198.4,850],
+  ['501C21',"Aqüífer calcàries del Bages",'Doble: fissuració+karstificació',198.4,600],
+  ['303C21',"Aqüífer calcàries Camp de Tarragona",'Doble: fissuració+karstificació',215.3,500],
+  ['303C21b',"Aqüífer calcàries Montmell-Bonastre",'Doble: fissuració+karstificació',180.0,500],
+  ['502C21',"Aqüífer calcàries del Berguedà nord",'Doble: fissuració+karstificació',167.2,800],
+  ['504C21',"Aqüífer calcàries del Ripollès",'Doble: fissuració+karstificació',134.5,800],
+  ['303SA1',"Sistema aqüífer del Camp de Tarragona",'Doble: fissuració+karstificació',312.5,500],
+  ['518SA1',"Sistema aqüífer del Cadí-Moixeró",'Doble: fissuració+karstificació',223.4,900],
+  ['301C21',"Aqüífer calcàries del Garraf",'Karstificació',183.4,550],
+  ['304C21',"Aqüífer calcàries Muntanyes de Prades",'Karstificació',142.6,500],
+  ['202C22',"Sistema càrstic Banyoles-Besalú",'Karstificació',52.3,700],
+  ['402C21',"Aqüífer calcàries dels Ports de Beseit",'Karstificació',124.3,500],
+  ['103C21',"Aqüífer calcàries del Montgrí",'Karstificació',67.8,700],
+  ['512SA1',"Sistema aqüífer del Garraf-Ordal",'Karstificació',178.9,550],
+  ['101D10',"Aqüífer granits del Cap de Creus",'Fissuració',87.4,700],
+  ['503D10',"Aqüífer granits del Berguedà",'Fissuració',156.7,800],
+  ['505D10',"Aqüífer roques paleozoiques Pallars Sobirà",'Fissuració',234.5,1000],
+  ['506D10',"Aqüífer granits de l'Alta Ribagorça",'Fissuració',189.3,1100],
+  ['507D10',"Aqüífer roques metamòrfiques Vall d'Aran",'Fissuració',145.6,1100],
+  ['504D10',"Aqüífer granits de la Cerdanya",'Fissuració',167.8,850],
+  ['102D10',"Aqüífer granits de les Gavarres",'Fissuració',112.3,700],
+  ['502D10',"Aqüífer granits del Ripollès",'Fissuració',198.4,850],
+];
+
+function rec(area,precip,poros) {
+  const cr = POROS[poros]?.cr || [0.08,0.15,0.22];
+  return [+(area*precip*cr[0]/1000).toFixed(1), +(area*precip*cr[1]/1000).toFixed(1), +(area*precip*cr[2]/1000).toFixed(1)];
+}
+
+const DATA = RAW.map(r => {
+  const [id,nom,poros,area,precip]=r;
+  const [rmin,rmig,rmax]=rec(area,precip,poros);
+  return {id,nom,poros,area,precip,rmin,rmig,rmax,
+    zona:getZona(id), cr:POROS[poros]?.cr[1]||0.15,
+    nivel: rmig>=50?'alt':rmig>=20?'mig':'baix'};
+});
+
+let barChart=null, donutChart=null;
+
+function semCol(n) { return n==='alt'?'#2D6A0A':n==='mig'?'#BA7517':'#8B1F1F'; }
+
+function getFiltered() {
+  const p=document.getElementById('fil-poros').value;
+  const z=document.getElementById('fil-zona').value;
+  const minR=+document.getElementById('fil-min').value;
+  const ord=document.getElementById('fil-ordre').value;
+  let d=DATA.filter(a=>(p==='tots'||a.poros===p)&&(z==='tots'||a.zona===z)&&a.rmig>=minR);
+  if(ord==='rec') d.sort((a,b)=>b.rmig-a.rmig);
+  else if(ord==='area') d.sort((a,b)=>b.area-a.area);
+  else if(ord==='precip') d.sort((a,b)=>b.precip-a.precip);
+  else d.sort((a,b)=>a.nom.localeCompare(b.nom));
+  return d;
+}
+
+function fmtN(n) { return n.toLocaleString('ca'); }
+
+function updateMetrics(d) {
+  const tot=d.reduce((s,a)=>s+a.rmig,0);
+  const area=d.reduce((s,a)=>s+a.area,0);
+  document.getElementById('m-rec').textContent=fmtN(Math.round(tot));
+  document.getElementById('m-area').textContent=fmtN(Math.round(area));
+  document.getElementById('m-n').textContent=d.length;
+  document.getElementById('m-cabal').textContent=(tot*1e6/(365.25*24*3600)).toFixed(1);
+  const recs=d.map(a=>a.rmig).sort((a,b)=>a-b);
+  document.getElementById('s-min').textContent=d.length?recs[0]+' hm³':'—';
+  document.getElementById('s-max').textContent=d.length?recs[recs.length-1]+' hm³':'—';
+  const precips=d.map(a=>a.precip);
+  document.getElementById('s-precip').textContent=d.length?Math.round(precips.reduce((a,b)=>a+b,0)/d.length)+' mm':'—';
+  const areas=d.map(a=>a.area);
+  document.getElementById('s-area').textContent=d.length?Math.round(areas.reduce((a,b)=>a+b,0)/d.length)+' km²':'—';
+}
+
+function updateBar(d) {
+  const top=d.slice(0,15);
+  if(barChart) barChart.destroy();
+  const ctx=document.getElementById('chart-bar').getContext('2d');
+  barChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:top.map(a=>a.nom.length>34?a.nom.slice(0,32)+'…':a.nom),
+      datasets:[{label:'hm³/any',data:top.map(a=>a.rmig),backgroundColor:top.map(a=>semCol(a.nivel)),borderWidth:0,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>{const a=top[c.dataIndex];
+        return [` Central: ${a.rmig} hm³/any`,` Rang: ${a.rmin}–${a.rmax} hm³/any`,` Àrea: ${Math.round(a.area)} km² · Precip: ${a.precip} mm`,` Cr: ${Math.round(a.cr*100)}%`];}}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+}
+
+function updateDonut(d) {
+  const by={};
+  d.forEach(a=>{by[a.poros]=(by[a.poros]||0)+a.rmig;});
+  const entries=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  const colors=entries.map(e=>POROS[e[0]]?.col||'#888');
+  const labels=entries.map(e=>POROS[e[0]]?.short||e[0]);
+  const vals=entries.map(e=>Math.round(e[1]));
+  if(donutChart) donutChart.destroy();
+  const ctx=document.getElementById('chart-donut').getContext('2d');
+  donutChart=new Chart(ctx,{type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:colors,borderWidth:3,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>` ${c.label}: ${c.raw} hm³/any`}}}}});
+  const tot=vals.reduce((a,b)=>a+b,0);
+  document.getElementById('donut-legend').innerHTML=entries.map((e,i)=>`
+    <div class="donut-leg-item">
+      <div class="legend-dot" style="background:${colors[i]}"></div>
+      <span>${labels[i]}</span>
+      <span class="val">${vals[i]} hm³ · ${Math.round(vals[i]/tot*100)}%</span>
+    </div>`).join('');
+}
+
+function updateTable(d) {
+  const maxR=Math.max(...d.map(a=>a.rmig),1);
+  document.getElementById('table-count').textContent=`${d.length} aqüífers`;
+  document.getElementById('table-body').innerHTML=d.map(a=>`
+    <tr onclick="showDetail('${a.id}')">
+      <td><span class="semaforo" style="background:${semCol(a.nivel)}"></span>${a.nom}</td>
+      <td class="muted">${POROS[a.poros]?.short||a.poros}</td>
+      <td class="muted">${a.zona}</td>
+      <td class="r">${Math.round(a.area).toLocaleString('ca')}</td>
+      <td class="r">${a.precip}</td>
+      <td class="r">${Math.round(a.cr*100)}%</td>
+      <td class="r muted">${a.rmin}</td>
+      <td class="r"><span class="bar-mini" style="width:${Math.round(a.rmig/maxR*50)}px;background:${semCol(a.nivel)}"></span>${a.rmig}</td>
+      <td class="r muted">${a.rmax}</td>
+      <td><span class="pill ${a.nivel}">${a.nivel==='alt'?'Alt':a.nivel==='mig'?'Mig':'Baix'}</span></td>
+    </tr>`).join('');
+}
+
+function showDetail(id) {
+  const a=DATA.find(x=>x.id===id); if(!a) return;
+  document.getElementById('detail-nom').textContent=a.nom;
+  const niv=a.nivel;
+  document.getElementById('detail-grid').innerHTML=`
+    <div class="detail-item"><div class="detail-item-label">Recàrrega central</div><div class="detail-item-val ${niv}">${a.rmig} hm³/any</div><div class="detail-rang">Rang: ${a.rmin} – ${a.rmax} hm³/any</div></div>
+    <div class="detail-item"><div class="detail-item-label">Àrea</div><div class="detail-item-val">${Math.round(a.area).toLocaleString('ca')} km²</div></div>
+    <div class="detail-item"><div class="detail-item-label">Precipitació</div><div class="detail-item-val">${a.precip} mm/any</div></div>
+    <div class="detail-item"><div class="detail-item-label">Coef. infiltració (Cr)</div><div class="detail-item-val">${Math.round(a.cr*100)}%</div><div class="detail-rang">Rang Cr: ${Math.round(POROS[a.poros]?.cr[0]*100)}–${Math.round(POROS[a.poros]?.cr[2]*100)}%</div></div>
+    <div class="detail-item"><div class="detail-item-label">Zona</div><div class="detail-item-val" style="font-size:14px">${a.zona}</div></div>
+    <div class="detail-item"><div class="detail-item-label">Porositat</div><div class="detail-item-val" style="font-size:13px">${a.poros}</div></div>
+    <div class="detail-item"><div class="detail-item-label">Cabal equivalent</div><div class="detail-item-val">${(a.rmig*1e6/(365.25*24*3600)).toFixed(2)} m³/s</div></div>
+    <div class="detail-item"><div class="detail-item-label">Codi ICGC</div><div class="detail-item-val" style="font-size:14px;font-family:monospace">${a.id}</div></div>
+    <div class="detail-item"><div class="detail-item-label">Nivell recàrrega</div><div class="detail-item-val"><span class="pill ${niv}">${niv==='alt'?'Alt (≥50 hm³)':niv==='mig'?'Mig (20–50 hm³)':'Baix (<20 hm³)'}</span></div></div>
+  `;
+  const panel=document.getElementById('detail');
+  panel.classList.add('visible');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function render() {
+  const d=getFiltered();
+  updateMetrics(d); updateBar(d); updateDonut(d); updateTable(d);
+}
+
+document.getElementById('fil-poros').addEventListener('change',render);
+document.getElementById('fil-zona').addEventListener('change',render);
+document.getElementById('fil-ordre').addEventListener('change',render);
+document.getElementById('fil-min').addEventListener('input',e=>{
+  document.getElementById('fil-min-val').textContent=`≥ ${e.target.value} hm³/any`;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
