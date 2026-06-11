@@ -1,4 +1,4 @@
-Visor dinàmic de l'estimació del potencial de recàrrega anual (R) dels aqüífers de Catalunya
+Visor dinàmic de l'estimació del potencial de recàrrega anual (R) dels aqüífers de Catalunya.
 Creat Òscar Franch Armengol, coordinador de la Comissió Tècnica de l'Aigua del Colgeocat
 
 Basat en el càlcul 
