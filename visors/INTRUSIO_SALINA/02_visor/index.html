@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Salinitat i intrusió marina</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="css/visor.css">
+</head>
+<body>
+<div class="page">
+<div class="site-h">
+  <a class="slogo" href="https://colgeocat.org" target="_blank" rel="noopener" title="Col·legi de Geòlegs i Geòlogues de Catalunya"><img src="data:image/png;base64,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" alt="Colgeocat · Col·legi de Geòlegs i Geòlogues de Catalunya"></a>
+  <div class="brand"><b>Salinitat i intrusió marina en aigües subterrànies a Catalunya</b><span>Registre històric de clorurs, conductivitat, ions majoritaris, indicadors d'intrusió i nivells piezomètrics</span></div>
+  <nav id="nav"><a data-go="visor" class="on">Visor</a><a data-go="fonts">Fonts de dades</a><a data-go="meto">Metodologia</a><a data-go="tem">Temàtics</a></nav>
+  <span class="ver">CTA: Comissió Tècnica de l'Aigua Colgeocat · v2 · dades a <span data-m="actualitzacio"></span></span>
+</div>
+<div class="app">
+  <header>
+    <button class="pfq" id="pfq" aria-pressed="true" title="Mostra o amaga els punts de control">Punts de control</button>
+    <label class="colsel psl">Paràmetre <select id="psel" aria-label="Paràmetre representat"><optgroup label="Analitzats"><option value="c" selected>Clorurs (Cl⁻)</option><option value="e">Conductivitat elèctrica</option><option value="o">Sodi (Na⁺)</option><option value="s">Sulfats (SO₄²⁻)</option><option value="n">Nitrats (NO₃⁻)</option></optgroup><optgroup label="Indicadors d'intrusió (càlcul propi)"><option value="w">% d'aigua de mar</option><option value="r">Relació Na/Cl</option><option value="v">Índex de Revelle</option><option value="m">Relació Mg/Ca</option><option value="x">Índex BEX (bescanvi de bases)</option></optgroup><optgroup label="Hidràulica"><option value="h">Nivell piezomètric</option></optgroup></select></label><div class="seg dcq" id="dcq" role="group" aria-label="Distància a la costa"><button data-dc="0" aria-pressed="true">Tot Catalunya</button><button data-dc="3" aria-pressed="false">≤ 3 km de la costa</button><button data-dc="10" aria-pressed="false">≤ 10 km</button></div>
+    <button class="pfq aqb" id="aqb" aria-pressed="false" title="Activa o desactiva la capa d'aqüífers">Aqüífers</button>
+    <label class="colsel">Classificació
+      <select id="colby"><option value="qgis">Per unitat</option><option value="tp" selected>Per tipus</option><option value="na">Per naturalesa</option><option value="cp">Per comportament</option><option value="ps">Per posició</option></select>
+    </label>
+  </header>
+  <div class="map hide-aq hide-cb hide-mb " id="map">
+    <svg id="svg" role="img" aria-label="Mapa de Catalunya amb els aqüífers"><defs><pattern id="zvpat" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(45)"><rect width="3" height="3" fill="rgba(230,120,30,.10)"/><line x1="0" y1="0" x2="0" y2="3" stroke="rgba(214,104,24,.8)" stroke-width="1"/></pattern></defs><g id="vp"><g id="gc"></g><g id="gb"><image id="bfull"/><image id="bimg"/></g><g id="ga"></g><g id="gzv"></g><g id="gmp"></g><g id="gms"></g><g id="gcq"></g><g id="gmk"></g><g id="gmb"></g><g id="gcb"></g><g id="gg"></g><g id="gml"></g><g id="gcql"></g><g id="gmsl"></g><g id="gl"></g><g id="gp"></g></g></svg>
+    <div class="zoom"><button id="zin" aria-label="Apropa">+</button><button id="zout" aria-label="Allunya">−</button><button id="zre" aria-label="Catalunya" title="Torna a Catalunya">⌂</button><button id="fxbtn" aria-label="Filtres" title="Filtres" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z" fill="#c0392b"/></svg><span id="fxn" hidden></span></button><button id="bmbtn" aria-label="Fons cartogràfic i transparència" title="Fons cartogràfic i transparència" aria-pressed="false" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5zm-7.6 8.8L2 13l10 5 10-5-2.4-1.2L12 15.6 4.4 11.8zm0 4.9L2 18l10 5 10-5-2.4-1.3L12 20.5l-7.6-3.8z" fill="currentColor"/></svg></button></div>
+    <div class="bmp" id="bmp" hidden>
+      <h4>Fons cartogràfic</h4>
+      <div class="seg" id="bmseg"><button data-bm="" aria-pressed="true">Sense fons</button><button data-bm="topografic-gris" aria-pressed="false">Topogràfic gris</button><button data-bm="orto" aria-pressed="false">Ortofoto</button></div>
+      <label class="rng dis" id="bmorng"><div><span>Opacitat del fons</span><b id="bmov">100%</b></div><input type="range" id="bmo" min="10" max="100" step="5" value="100"></label>
+      <label class="rng"><div><span>Transparència dels aqüífers</span><b id="aqtv">38%</b></div><input type="range" id="aqt" min="0" max="100" step="5" value="38"></label>
+      <div class="bmsrc">Fons: WMS ICGC</div>
+      <hr>
+      <h4>Altres capes d'interès</h4>
+      <div class="ckl">
+        <label><input type="checkbox" id="lycq"><i style="border:2px solid #b7484b"></i>Conques hidrogràfiques</label>
+        <label><input type="checkbox" id="lyzv"><i style="background:repeating-linear-gradient(45deg,rgba(214,104,24,.8) 0 2px,rgba(230,120,30,.12) 2px 5px);border:1px solid #c75f12"></i>Zones vulnerables per nitrats 2024</label>
+        <label><input type="checkbox" id="lyms"><i style="border:2px solid #0f6f78"></i>Masses d'aigua subterrània CIC</label>
+        <label><input type="checkbox" id="lymp"><i style="background:rgba(145,82,45,.45);border:1px solid #6e3b1f"></i>Masses d'aigua CIC amb mesures específiques de protecció</label>
+      </div>
+      <div class="bmsrc">Conques i masses d'aigua: ACA (PdG 2022-2027, conques internes) · Zones vulnerables: MITECO (desembre 2024)</div>
+    </div>
+    <div class="legend" id="legend">
+      <button data-tp="Aqüífer" aria-pressed="true" title="Mostra o amaga els aqüífers"><i style="background:#2a7fb8"></i>Aqüífer <b class="tpn"></b></button>
+      <button data-tp="Sistema aqüífer" aria-pressed="true" title="Mostra o amaga els sistemes aqüífers"><i style="background:#5a3e9b"></i>Sistema aqüífer <b class="tpn"></b></button>
+      <button data-tp="Aqüíclude" aria-pressed="false" title="Mostra o amaga els aqüícludes"><i style="background:#9c9c9c"></i>Aqüíclude <b class="tpn"></b></button>
+      <button data-tp="Aqüitard" aria-pressed="false" title="Mostra o amaga els aqüitards"><i style="background:#d9a441"></i>Aqüitard <b class="tpn"></b></button>
+      <span class="sep"></span>
+      <button data-l="cb" aria-pressed="false" title="Mostra o amaga els límits i els noms de comarca"><i style="background:none;border-color:#8d9aa3"></i>Comarques</button>
+      <button data-l="mb" aria-pressed="false" title="Mostra o amaga els límits i els noms de municipi"><i style="background:none;border:1px dashed #a9b4bb"></i>Municipis</button>
+      <span class="sep"></span><span class="glab">Gestió</span>
+      <button data-gest="ACA" aria-pressed="true" title="Àmbit de l'Agència Catalana de l'Aigua: districte de conca fluvial de Catalunya (conques internes)"><i style="background:none;border:2px solid #0b4f8a"></i>ACA</button>
+      <button data-gest="CHE" aria-pressed="true" title="Àmbit de la Confederación Hidrográfica del Ebro: demarcació de l'Ebre a Catalunya"><i style="background:none;border:2px dashed #b03a2e"></i>CHE</button>
+    </div>
+    <div class="leg2" id="leg2" hidden></div>
+    <div class="legp" id="legp"></div>
+    <div class="mini" aria-label="Mapa guia"><svg id="mini"><g id="mg"></g><rect id="mr"/></svg></div>
+    <div class="scl" id="scl" aria-label="Escala del mapa"><b id="sclnum"></b><div class="sbar" id="sbar"></div><div class="slab" id="slab"></div></div>
+    <div class="tip" id="tip" hidden></div>
+    <button class="lstbtn" id="lstbtn" title="Veure i/o exportar llistat"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2v2H4zm4 0h12v2H8zM4 11h2v2H4zm4 0h12v2H8zm-4 5h2v2H4zm4 0h12v2H8z" fill="currentColor"/></svg><span><b id="lstbn"></b> · Veure i/o exportar llistat</span></button>
+  </div>
+  <div class="lst">
+    <div class="lsth"><div class="seg lmseg" id="lmseg"><button data-lm="aq" aria-pressed="true">Unitats</button><button data-lm="pt" aria-pressed="false">Punts de control</button></div><strong id="lstn"></strong><span class="fsum" id="fsum"></span>
+      <span class="exp" id="exp"><span id="expmsg"></span><button id="xls">Exporta a Excel</button><button id="pdf">Exporta a PDF</button></span><button class="x" id="lstclose" aria-label="Tanca el llistat">×</button></div>
+    <div class="lstb" id="lstb"></div>
+  </div>
+  <aside>
+    <div class="ph">
+      <input id="q" type="search" placeholder="Cerca un punt (nom, codi, municipi)" aria-label="Cerca">
+      <div class="scope"><span><strong id="scopeT">Catalunya</strong> · <span id="scopeN"></span></span><button class="link" id="clear" hidden>Treu la cerca</button></div>
+    </div>
+    <div class="body" id="body"></div>
+  </aside>
+  <div class="fxcol" id="fxcol" hidden>
+    <div class="fxh"><strong>Filtres</strong><button class="x" id="fxclose" aria-label="Tanca els filtres">×</button></div>
+    <div class="fxsum"><span><b id="fxcount"></b></span><button class="link" id="fxclear">Neteja filtres</button></div>
+    <div class="fxb">
+      <details open id="fxd1" hidden><summary>Aqüífers <small id="fxs1"></small></summary><div class="fxg" id="fx1"></div></details>
+      <details open><summary>Punts de control <small id="fxs2"></small></summary><div class="fxg" id="fx2"></div></details>
+    </div>
+  </div>
+</div>
+<div class="doc" id="pg-fonts" hidden><div class="docin">
+  <button class="link back" data-go="visor">← Torna al visor</button>
+  <h1>Fonts de dades</h1>
+  <p class="lead">Capes cartogràfiques que es poden consultar al visor. Per a cada una s'indica d'on prové, de quin any és i què conté. Totes les geometries s'han convertit a coordenades geogràfiques ETRS89 i s'han simplificat lleugerament (entre 15 i 25 m) perquè el visor sigui àgil, sense modificar-ne els atributs.</p>
+
+  <div class="cards">
+    <article class="card"><header><h2>Aqüífers (unitats hidrogeològiques)</h2><span class="pill">Capa principal</span></header>
+      <dl><dt>Font</dt><dd>Institut Cartogràfic i Geològic de Catalunya (ICGC). Capa <i>AIGUA_AQUIFERS</i>, amb enllaç a la fitxa PDF de cada unitat al Datacloud de l'ICGC.</dd>
+      <dt>Any</dt><dd>Versió vigent, descarregada l'octubre del 2026.</dd>
+      <dt>Contingut</dt><dd>210 unitats hidrogeològiques de Catalunya: 130 aqüífers, 29 sistemes aqüífers, 31 aqüitards i 20 aqüícludes. Cada unitat té el codi i el nom, la posició (Quaternari, Quaternari profund, Basament 1, 2 o 3), la naturalesa del medi, el comportament hidràulic (lliure, semiconfinat, confinat…), la porositat i el tipus de formació. Les unitats quaternàries se superposen a les de basament.</dd></dl></article>
+
+    <article class="card"><header><h2>Gestió (ACA / CHE)</h2></header>
+      <dl><dt>Font</dt><dd>Agència Europea de Medi Ambient (EEA), sistema WISE: districtes de conca de la Directiva marc de l'aigua tal com els reporta l'Estat espanyol.</dd>
+      <dt>Any</dt><dd>Reporting 2022 (tercer cicle de planificació, 2022-2027).</dd>
+      <dt>Contingut</dt><dd>Contorn de l'àmbit de l'Agència Catalana de l'Aigua (districte de conca fluvial de Catalunya, ES100, 16.430 km²) i de la Confederación Hidrográfica del Ebro (demarcació de l'Ebre, ES091, 15.584 km² dins Catalunya), retallats amb el límit de Catalunya de l'ICGC. La Val d'Aran hi consta dins l'àmbit de l'Ebre. Els 88 km² de la conca del Sénia (Confederación Hidrográfica del Júcar) no pertanyen a cap dels dos.</dd></dl></article>
+
+    <article class="card"><header><h2>Conques hidrogràfiques</h2></header>
+      <dl><dt>Font</dt><dd>Agència Catalana de l'Aigua (ACA). Capa <i>AIGUA_CONQUES_HIDRO</i> (conques hidrogràfiques principals).</dd>
+      <dt>Any</dt><dd>Versió vigent, descarregada el 2026.</dd>
+      <dt>Contingut</dt><dd>33 conques i agrupacions de rieres que cobreixen tot Catalunya, de la del Segre (7.456 km²) a la del Tec (2 km²). Cada conca s'ha assignat a l'àmbit de gestió on es troba pràcticament tota la seva superfície.</dd></dl></article>
+
+    <article class="card"><header><h2>Zones vulnerables per nitrats</h2></header>
+      <dl><dt>Font</dt><dd>Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO), recopilació estatal de zones vulnerables (Directiva 91/676/CEE). A Catalunya, les designa la Generalitat.</dd>
+      <dt>Any</dt><dd>Desembre del 2024.</dd>
+      <dt>Contingut</dt><dd>62 polígons de zones vulnerables a la contaminació per nitrats d'origen agrari a Catalunya (codis ES51), amb el nom i el codi de la zona.</dd></dl></article>
+
+    <article class="card"><header><h2>Masses d'aigua subterrània CIC</h2></header>
+      <dl><dt>Font</dt><dd>Agència Catalana de l'Aigua (ACA). Capa <i>AIGUA_PDG_SUBTERRANIES_CIC</i> del Pla de gestió del districte de conca fluvial de Catalunya.</dd>
+      <dt>Any</dt><dd>Tercer cicle de planificació (2022-2027). Els estats corresponen a l'avaluació identificada com a «2021».</dd>
+      <dt>Contingut</dt><dd>44 masses d'aigua subterrània de les conques internes (33 de nivell superior i 11 d'inferior), amb el codi ACA i europeu, l'estat químic, quantitatiu i global (bo o dolent) i les zones protegides associades, com ara la zona vulnerable.</dd></dl></article>
+
+    <article class="card"><header><h2>Masses d'aigua CIC amb mesures específiques de protecció</h2></header>
+      <dl><dt>Font</dt><dd>Agència Catalana de l'Aigua (ACA). Capa <i>AIGUA_MA_SUBT_PROTEGIDES</i>.</dd>
+      <dt>Any</dt><dd>Pla de gestió 2022-2027.</dd>
+      <dt>Contingut</dt><dd>24 masses d'aigua subterrània de les conques internes que tenen mesures específiques de protecció (19 de nivell superior i 5 d'inferior), amb la superfície de cadascuna.</dd></dl></article>
+
+    <article class="card"><header><h2>Comarques i municipis</h2></header>
+      <dl><dt>Font</dt><dd>ICGC, divisions administratives de Catalunya.</dd>
+      <dt>Any</dt><dd>Versió vigent el 2026.</dd>
+      <dt>Contingut</dt><dd>43 comarques i 947 municipis. Serveixen de referència al mapa i per localitzar a quin municipi i comarca es clica.</dd></dl></article>
+
+    <article class="card"><header><h2>Fons cartogràfic</h2></header>
+      <dl><dt>Font</dt><dd>ICGC, servei WMS del mapa base.</dd>
+      <dt>Any</dt><dd>Versió vigent en el moment de la consulta (cal connexió a internet).</dd>
+      <dt>Contingut</dt><dd>Mapa topogràfic en gris i ortofoto en color. El fons es demana a la resolució de la pantalla cada vegada que es mou el mapa.</dd></dl></article>
+
+    <article class="card"><header><h2>Punts de control i analítiques</h2><span class="pill">Capa principal</span></header>
+      <dl><dt>Font</dt><dd>Agència Catalana de l'Aigua (ACA), Sistema de dades i informació del medi (SDIM): xarxa de control de les aigües subterrànies, «Elements fisicoquímics» (des del 2007) i xarxes anteriors al 2007.</dd>
+      <dt>Any</dt><dd><span data-m="any_inici"></span>–<span data-m="any_final"></span>. Descarregat el <span data-m="actualitzacio"></span>.</dd>
+      <dt>Contingut</dt><dd><span data-m="punts_analitiques"></span> punts amb analítiques i <span data-m="valors"></span> valors de clorurs, conductivitat, sodi, potassi, calci, magnesi, sulfats, bicarbonats, nitrats, bor, estronci, pH i temperatura, a més dels indicadors calculats. Vegeu <button class="link" data-go="meto">Metodologia</button>.</dd></dl></article>
+    <article class="card"><header><h2>Nivell piezomètric</h2></header>
+      <dl><dt>Font</dt><dd>ACA, dades obertes de la Generalitat: «Nivell piezomètric de les aigües subterrànies de Catalunya» (conjunt 6899-hrme).</dd>
+      <dt>Any</dt><dd>Sèries completes fins al <span data-m="actualitzacio"></span>.</dd>
+      <dt>Contingut</dt><dd><span data-m="punts_nivell"></span> piezòmetres amb cota del nivell piezomètric (m s.n.m.). Per alleugerir el visor, se'n conserva un valor per mes (el darrer).</dd></dl></article>
+  </div>
+</div></div>
+
+<div class="doc" id="pg-meto" hidden><div class="docin">
+  <button class="link back" data-go="visor">← Torna al visor</button>
+  <h1>Metodologia</h1>
+  <p class="lead">El visor reuneix totes les analítiques publicades per l'Agència Catalana de l'Aigua dels paràmetres que serveixen per detectar i interpretar la salinització dels aqüífers. Hi afegeix els nivells piezomètrics i un conjunt d'indicadors hidrogeoquímics calculats mostra a mostra. Els clorurs són el punt de partida, però no basten. Un clorur alt també pot venir de la dissolució d'evaporites, d'aigües residuals, d'adobs o de retorns de reg. Per això el visor permet creuar-lo amb altres ions i amb la piezometria.</p>
+
+  <div class="kfig"><div><b><span data-m="punts"></span></b><span>punts d'aigua subterrània</span></div><div><b><span data-m="valors"></span></b><span>valors analítics</span></div><div><b><span data-m="nivells"></span></b><span>mesures de nivell (mensuals)</span></div><div><b><span data-m="any_inici"></span>–<span data-m="any_final"></span></b><span>període cobert</span></div></div>
+
+  <h2>Fonts i descàrrega</h2>
+  <ul class="ml">
+    <li><b>Analítiques:</b> SDIM de l'ACA (aplicacions.aca.gencat.cat/sdim21). Xarxa «Control aigües subterrànies – Elements fisicoquímics» (des del 2007) i «Xarxes anteriors 2007 – Elements fisicoquímics subterrànies». Descàrrega completa per a tot Catalunya, en blocs de 20 punts i amb l'informe Excel original de l'SDIM. Els Excel es conserven a <i>00_fonts_originals/SDIM_xlsx</i> (una subcarpeta per xarxa).</li>
+    <li><b>Paràmetres descarregats:</b> clorurs, conductivitat (de camp i de laboratori a 20 ºC), sodi, potassi, calci, magnesi, sulfats, bicarbonats, nitrats, bor, estronci, pH, temperatura, suma d'anions i de cations i error del balanç iònic. Per a les aigües subterrànies, l'SDIM no publica bromurs, i per això no es pot calcular la relació Br/Cl.</li>
+    <li><b>Nivell piezomètric:</b> dades obertes de l'ACA (analisi.transparenciacatalunya.cat, conjunt 6899-hrme). Si un piezòmetre no té analítiques, s'afegeix igualment com a punt.</li>
+    <li><b>Llista de punts i sèries de l'SDIM:</b> es consulta en directe a l'SDIM a cada actualització, de manera que hi entren els punts nous de la xarxa.</li>
+    <li><b>Localització:</b> coordenades UTM 31N ETRS89 de l'SDIM. El municipi, la comarca i les unitats hidrogeològiques s'han assignat per superposició amb les capes de l'ICGC.</li>
+  </ul>
+
+  <h2>Actualització de les dades</h2>
+  <ul class="ml">
+    <li><b>Darrera actualització:</b> <span data-m="actualitzacio"></span>.</li>
+    <li><b>Procés:</b> l'script <i>03_eines/actualitza.py</i> torna a descarregar sencera la xarxa de l'SDIM des del 2007, de manera que també hi entren les correccions de l'ACA. Les xarxes anteriors al 2007 ja no canvien i només es baixen la primera vegada. També baixa la piezometria de dades obertes, recalcula els indicadors i regenera el visor (carpeta <i>02_visor</i> i HTML únic).</li>
+    <li><b>Seguretat:</b> si una descàrrega falla o queda incompleta, es manté la versió anterior. Cada execució queda anotada a <i>registre_actualitzacions.txt</i>.</li>
+  </ul>
+
+  <h2>Tractament dels valors</h2>
+  <ul class="ml">
+    <li><b>«&lt; x»:</b> valor inferior al límit de quantificació. Es conserva i es mostra així. A les mitjanes compta com x/2 i no supera mai cap referència.</li>
+    <li><b>«&gt; x»:</b> valor superior al rang del mètode. Passa sovint amb el sodi (&gt; 1.000 mg/l) i el bor de les aigües més salines. Es representa amb el valor x, que és un mínim, i es marca amb un contorn negre al gràfic.</li>
+    <li><b>Conductivitat:</b> s'usa la de laboratori a 20 ºC. Si una mostra no en té, es fa servir la de camp.</li>
+    <li><b>pH i temperatura:</b> valor de camp i, si no n'hi ha, de laboratori. Només surten a les taules.</li>
+  </ul>
+
+  <h2>Indicadors d'intrusió (càlcul propi)</h2>
+  <p>Es calculen per a cada mostra, només amb ions de la mateixa mostra i quan no són «&lt; x». Pesos equivalents: Cl 35,45; Na 22,99; K 39,10; Ca 20,04; Mg 12,15; HCO₃ 61,02 mg/meq.</p>
+  <ul class="ml">
+    <li><b>% d'aigua de mar:</b> barreja conservativa dels clorurs, (Cl − Cl<sub>dolça</sub>) / (Cl<sub>mar</sub> − Cl<sub>dolça</sub>) × 100, amb Cl<sub>mar</sub> = 19.354 mg/l i Cl<sub>dolça</sub> = 20 mg/l (valor de referència únic per a tot Catalunya). És una aproximació: suposa que tot l'excés de clorurs és marí. Classes: &lt; 0,5 %, 0,5–1,2 % i &gt; 1,2 % (≈ 250 mg/l de clorurs).</li>
+    <li><b>Relació Na/Cl (molar):</b> a l'aigua de mar val 0,86. Quan l'aigua de mar entra en un aqüífer d'aigua dolça, el sodi queda retingut a les argiles per bescanvi iònic. En aquest cas Na/Cl baixa per sota de 0,86 i apareixen fàcies clorurades càlciques. Si val més d'1, l'origen del sodi és continental (silicats, aigües residuals) o l'aqüífer s'està rentant. Si el sodi és «&gt; x», s'estima amb el balanç de cations, Na = Σcations − Ca − Mg − K (en meq/l), i es marca amb «≈».</li>
+    <li><b>Índex de Revelle:</b> Cl⁻/HCO₃⁻ en meq/l. Classes: &lt; 1,3 no o poc afectada; 1,3–6,6 moderadament afectada; &gt; 6,6 fortament afectada. A partir de 15,5 l'aigua és pràcticament marina.</li>
+    <li><b>Relació Mg/Ca (molar):</b> l'aigua de mar val ≈ 5,2 i l'aigua dolça carbonatada sol ser inferior a 1. Augmenta amb la barreja amb aigua de mar, però també en aqüífers dolomítics.</li>
+    <li><b>Índex BEX</b> (<i>base exchange index</i>, Stuyfzand): Na + K + Mg − 1,0716·Cl, en meq/l. Si és negatiu (&lt; −0,5), l'aqüífer es salinitza perquè avança l'aigua salada. Si és positiu (&gt; 0,5), es dessalinitza perquè l'aigua dolça desplaça la salada. Entre els dos valors, equilibri.</li>
+    <li><b>Nivell piezomètric:</b> classes &lt; 0 m s.n.m. (gradient cap a terra, afavoreix l'entrada d'aigua de mar), 0–5 m i &gt; 5 m. S'han descartat els valors per sota de −150 m, els que superen la cota del terreny en més de 30 m, els que queden per sota del fons del pou i els anòmals dins de la sèrie de cada punt (a més de 25 m i de 8 desviacions absolutes medianes de la mediana). Molts punts són pous d'explotació: el nivell pot ser dinàmic (mesurat amb el pou en bombament) i, per tant, més baix que el de l'aqüífer.</li>
+  </ul>
+
+  <h2>Com interpretar-los conjuntament</h2>
+  <ul class="ml">
+    <li><b>Intrusió marina activa:</b> clorurs i conductivitat alts, Na/Cl &lt; 0,86, BEX negatiu, Revelle alt, Mg/Ca a l'alça i, sovint, nivell per sota del mar.</li>
+    <li><b>Salinitat no marina:</b> clorurs alts amb Na/Cl ≈ 1 i sulfats alts (dissolució d'halita i guix, conca potàssica del Bages, Keuper). També clorurs moderats amb nitrats alts (retorns agrícoles i aigües residuals). La distància a la costa i la massa d'aigua ajuden a separar els casos.</li>
+    <li><b>Recuperació:</b> BEX positiu i Na/Cl &gt; 1 en un aqüífer que havia estat salinitzat.</li>
+    <li><b>Profunditat:</b> la intrusió forma una falca. Un pou que capta tota la columna barreja aigües, i el valor pot amagar aigua molt salina en profunditat. La fitxa del punt indica la fondària del pou quan l'SDIM la dona.</li>
+  </ul>
+
+  <h2>Com es representen els punts al visor</h2>
+  <ul class="ml">
+    <li><b>Paràmetre:</b> el desplegable de la barra superior canvia el paràmetre de tot el visor (mapa, resum, fitxes, llistat i temàtics). Els botons «≤ 3 km» i «≤ 10 km» limiten els punts per distància a la línia de costa.</li>
+    <li><b>Valor de cada punt:</b> per defecte, el darrer valor del període. Als filtres es pot canviar pel valor més desfavorable (el màxim, o el mínim per a Na/Cl, BEX i nivell) o per la mitjana.</li>
+    <li><b>Distància a la costa:</b> distància en línia recta al contorn marítim de Catalunya, derivat del límit comarcal de l'ICGC. Té una precisió d'unes desenes de metres.</li>
+    <li><b>Gestió:</b> ACA o CHE segons l'àmbit on és el punt. Totes les analítiques són de la xarxa de l'ACA.</li>
+    <li><b>Punts i aqüífers:</b> un punt dins el polígon d'una unitat no vol dir necessàriament que capti aquell aqüífer.</li>
+  </ul>
+
+  <h2>Plànols temàtics</h2>
+  <ul class="ml">
+    <li>El càlcul es fa en dos passos: primer un valor per punt, i després un valor per zona. Les zones amb menys punts del mínim surten ratllades.</li>
+    <li>Per a Na/Cl, BEX i nivell piezomètric, l'escala de colors és inversa (el vermell és el valor baix), i el «més desfavorable» i el «percentil» es calculen cap al valor baix.</li>
+    <li>El mapa de calor (IDW, radi de 15 km) és orientatiu: no té en compte la connexió real entre aqüífers ni la geometria de la falca salina.</li>
+    <li>Biaix de mostreig: la xarxa té més punts allà on hi ha problemes coneguts. Els valors agregats poden ser més desfavorables que la realitat de tot el territori.</li>
+  </ul>
+
+  <h2>Limitacions</h2>
+  <ul class="ml">
+    <li>Sense bromurs ni isòtops, el visor no pot confirmar l'origen marí dels clorurs. Els indicadors en donen indicis, no proves.</li>
+    <li>Les xarxes anteriors al 2007 i les actuals no tenen sempre els mateixos punts ni el mateix calendari de mostreig.</li>
+    <li>Les dades són de l'ACA. El visor les representa tal com es publiquen. Els càlculs propis s'indiquen sempre com a tals.</li>
+  </ul>
+</div></div>
+
+
+<div class="doc tem" id="pg-tem" hidden>
+ <div class="tmap" id="tmap">
+  <svg id="tsvg" role="img" aria-label="Mapa temàtic"><defs><pattern id="thatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><rect width="5" height="5" fill="#eef1f3"/><line x1="0" y1="0" x2="0" y2="5" stroke="#a9b4bb" stroke-width="1.6"/></pattern><clipPath id="tclip"></clipPath></defs>
+   <g id="tvp"><g id="tland"></g><g id="tz"></g><g id="theat" clip-path="url(#tclip)"><image id="thimg"/></g><g id="tcb"></g><g id="tpts"></g><g id="thl"></g></g></svg>
+  <div class="zoom"><button id="tzin" aria-label="Apropa">+</button><button id="tzout" aria-label="Allunya">−</button><button id="tzre" aria-label="Catalunya" title="Torna a Catalunya">⌂</button></div>
+  <div class="ttitle" id="ttitle"></div>
+  <div class="tleg" id="tleg"></div>
+  <div class="tip" id="ttip" hidden></div>
+  <div class="tbusy" id="tbusy" hidden>Calculant…</div>
+ </div>
+ <aside class="tpan">
+  <div class="tctl">
+   <div class="tch"><h2>Plànols temàtics</h2><button class="link" data-go="visor">← Visor</button></div>
+   <div class="trow"><span>Paràmetre</span><select id="tpp" aria-label="Paràmetre"></select></div>
+   <div class="trow"><span>Estadístic</span><select id="tst"><option value="mean">Mitjana</option><option value="median">Mediana</option><option value="last">Darrer valor</option><option value="max">Més desfavorable</option><option value="p90">Percentil 90</option><option value="pct">% de punts que superen la referència</option></select></div>
+   <div class="trow"><span>Representació</span><select id="tun"><option value="com">Comarques</option><option value="mun">Municipis</option><option value="aq">Aqüífers (unitats ICGC)</option><option value="mas">Masses d'aigua subterrània</option><option value="hex">Hexàgons de 5 km</option><option value="heat">Mapa de calor (interpolació)</option></select></div>
+   <div class="trow"><span>Període</span><div class="yrs"><input type="number" id="ty0" min="1993" max="2026" value="1993" aria-label="Any inicial"><span>a</span><input type="number" id="ty1" min="1993" max="2026" value="2026" aria-label="Any final"></div></div>
+   <div class="trow tsrc"><span>Fonts</span><div id="tsrc"></div></div>
+   <div class="trow"><span>Mínim de punts</span><div class="yrs"><input type="number" id="tmin" min="1" max="20" value="3" aria-label="Mínim de punts per zona"><small id="tminl">per zona</small></div></div>
+   <div class="trow" id="theatopt" hidden><span>Mapa de calor</span><div class="tck"><label><input type="checkbox" id="tclipc" checked> Retalla als aqüífers</label></div></div>
+   <div class="trow"><span></span><div class="tck"><label><input type="checkbox" id="tshowp"> Mostra els punts de control</label></div></div>
+  </div>
+  <div class="tbody" id="tbody"></div>
+ </aside>
+</div>
+
+
+</div>
+
+<script src="dades/geo.js"></script>
+<script src="dades/punts.js"></script>
+<script src="dades/meta.js"></script>
+<script src="js/util.js"></script>
+<script src="js/model.js"></script>
+<script src="js/mapa.js"></script>
+<script src="js/vistes.js"></script>
+<script src="js/exportacio.js"></script>
+<script src="js/controlador.js"></script>
+</body>
+</html>
